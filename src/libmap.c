@@ -19,10 +19,10 @@ Map *NewMap(Map *optional) {
   map->entrySize = 0;
 
   if (optional != NULL) {
-    map->entrySize = optional->entrySize;
-    map->keys = optional->keys;
-    map->values = optional->values;
+    MapCopy(optional, map);
   }
+
+  return map;
 }
 
 void FreeMapMemory(Map *map) {
@@ -35,26 +35,15 @@ void FreeMapMemory(Map *map) {
 
 void MapPut(Map *map, void *key, void *value) {
   for (size_t i = 0; i < map->keys->size; i++) {
-    if (map->keys->entries[i] == key) {
+    if (*(void **)map->keys->entries[i] == *(void **)key) {
       map->values->entries[i] = value;
       return;
     }
   }
 
-  if (map->keys->size >= INIT_CAP / 2) {
-    void **newEntries =
-        realloc(*map->keys->entries, INIT_CAP * 2 * sizeof(void *));
-    void **newValues =
-        realloc(*map->values->entries, INIT_CAP * 2 * sizeof(void *));
-
-    if (newEntries == NULL || newValues == NULL) {
-      printf("MAP PUT Exception -> Failed to allocate memory!\n");
-      FreeMapMemory(map);
-      exit(EXIT_FAILURE);
-    }
-
-    *map->keys->entries = newEntries;
-    *map->values->entries = newValues;
+  if (map->keys->size >= INIT_CAP) {
+    printf("MAP PUT Exception -> Reached capacity!\n");
+    return;
   }
 
   map->keys->entries[map->keys->size] = key;
@@ -66,22 +55,24 @@ void MapPut(Map *map, void *key, void *value) {
 }
 
 void *MapGet(Map *map, void *key) {
-  for (int i = 0; i < map->keys->size; i++) {
+  for (size_t i = 0; i < map->keys->size; i++) {
     if (map->keys->entries[i] == key) {
       return map->values->entries[i];
     }
   }
+
+  return NULL;
 }
 
 void MapDelete(Map *map, void *key) {
-  for (int i = 0; i < map->keys->size; i++) {
+  for (size_t i = 0; i < map->keys->size; i++) {
     if (map->keys->entries[i] == key) {
       free(map->keys->entries[i]);
       free(map->values->entries[i]);
-      
+
       map->keys->entries[i] = NULL;
       map->values->entries[i] = NULL;
-      
+
       map->keys->size--;
       map->values->size--;
       map->entrySize--;
@@ -91,12 +82,12 @@ void MapDelete(Map *map, void *key) {
 }
 
 void MapClear(Map *map) {
-  for (int i = 0; i < map->keys->size; i++) {
-      free(map->keys->entries[i]);
-      free(map->values->entries[i]);
-      
-      map->keys->entries[i] = NULL;
-      map->values->entries[i] = NULL;
+  for (size_t i = 0; i < map->keys->size; i++) {
+    free(map->keys->entries[i]);
+    free(map->values->entries[i]);
+
+    map->keys->entries[i] = NULL;
+    map->values->entries[i] = NULL;
   }
 
   map->keys->size = 0;
@@ -104,8 +95,26 @@ void MapClear(Map *map) {
   map->entrySize = 0;
 }
 
-void *MapKeys(Map *map) { return map->keys->entries; }
+void *MapKeys(Map *map) {
+  if (MapSize(map) == 0) return NULL;
+  return map->keys->entries;
+}
 
-void *MapValues(Map *map) { return map->values->entries; }
+void *MapValues(Map *map) {
+  if (MapSize(map) == 0) return NULL;
+  return map->values->entries;
+}
 
 size_t MapSize(Map *map) { return map->entrySize; }
+
+void MapCopy(Map *source, Map *dest) {
+  dest->entrySize = source->entrySize;
+
+  for (size_t i = 0; i < source->keys->size; i++) {
+    dest->keys->entries[i] = source->keys->entries[i];
+    dest->values->entries[i] = source->values->entries[i];
+  }
+
+  dest->keys->size = source->keys->size;
+  dest->values->size = source->values->size;
+}

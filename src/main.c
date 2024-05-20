@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <sys/time.h>
+#include <time.h>
 
 #include "libmap.h"
 
@@ -20,16 +22,30 @@
 // MapClear(Map *map);
 // -> Return entry size of map                                  = size_t
 // MapSize(Map *map);
+// -> Copy one map to another map                               = void
+// MapCopy(Map *source, Map *dest);
+
+long long currentTimeInMillis() {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (long long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
 
 int main() {
-  Map *map = NewMap(NULL);
-  MapPut(map, (void *)"key1", (void *)2);
-  MapPut(map, (void *)"key2", (void *)"fuck69");
-  printf("Gotten value from 'key1': %d\n", MapGet(map, (void *)"key1"));
+  long long startTimeMillis = currentTimeInMillis();
 
-  Map *copyMap = NewMap(map);
+  Map *map = NewMap(NULL);
+  MapPut(map, (void *)(intptr_t)1000, (void *)(intptr_t)999);
+  void *value = MapGet(map, (void *)(intptr_t)1000);
+  if (value != NULL) {
+    printf("Value for key 1000: %ld\n", (intptr_t)value);
+  } else {
+    printf("Key 1000 not found\n");
+  }
 
   FreeMapMemory(map);
-  FreeMapMemory(copyMap);
+
+  long long endTimeMillis = currentTimeInMillis();
+  printf("\nTime taken: %lld ms\n", endTimeMillis - startTimeMillis);
   return 0;
 }

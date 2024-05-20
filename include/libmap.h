@@ -1,11 +1,11 @@
 #ifndef __LIBMAP__
 #define __LIBMAP__
 
-#define INIT_CAP 10
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define INIT_CAP 1024
 
 typedef struct Entries {
   void **entries;
@@ -27,5 +27,6 @@ void *MapKeys(Map *map);
 void *MapValues(Map *map);
 void MapClear(Map *map);
 size_t MapSize(Map *map);
+void MapCopy(Map *source, Map *dest);
 
 #endif  //__LIBMAP__
