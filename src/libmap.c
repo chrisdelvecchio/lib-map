@@ -30,18 +30,15 @@ void FreeMapMemory(Map *map) {
   free(map->values->entries);
   free(map->keys);
   free(map->values);
+
+  map->keys = NULL;
+  map->values = NULL;
+
   free(map);
 }
 
 void MapPut(Map *map, void *key, void *value) {
-  for (size_t i = 0; i < map->keys->size; i++) {
-    if (*(void **)map->keys->entries[i] == *(void **)key) {
-      map->values->entries[i] = value;
-      return;
-    }
-  }
-
-  if (map->keys->size >= INIT_CAP) {
+  if (map->keys->size >= INIT_CAP + 1) {
     printf("MAP PUT Exception -> Reached capacity!\n");
     return;
   }
@@ -67,11 +64,10 @@ void *MapGet(Map *map, void *key) {
 void MapDelete(Map *map, void *key) {
   for (size_t i = 0; i < map->keys->size; i++) {
     if (map->keys->entries[i] == key) {
-      free(map->keys->entries[i]);
-      free(map->values->entries[i]);
-
-      map->keys->entries[i] = NULL;
-      map->values->entries[i] = NULL;
+      for (size_t j = i; j < map->keys->size - 1; j++) {
+        map->keys->entries[j] = map->keys->entries[j + 1];
+        map->values->entries[j] = map->values->entries[j + 1];
+      }
 
       map->keys->size--;
       map->values->size--;
@@ -82,14 +78,6 @@ void MapDelete(Map *map, void *key) {
 }
 
 void MapClear(Map *map) {
-  for (size_t i = 0; i < map->keys->size; i++) {
-    free(map->keys->entries[i]);
-    free(map->values->entries[i]);
-
-    map->keys->entries[i] = NULL;
-    map->values->entries[i] = NULL;
-  }
-
   map->keys->size = 0;
   map->values->size = 0;
   map->entrySize = 0;

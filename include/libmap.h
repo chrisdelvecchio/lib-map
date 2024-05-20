@@ -5,13 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INIT_CAP 1024
+#define INIT_CAP 1024 //How many keys can this map store?
 
 typedef struct Entries {
   void **entries;
   size_t size;
 } Entries;
 
+// Store any type of data
 typedef struct Map {
   Entries *keys;
   Entries *values;

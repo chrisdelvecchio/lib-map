@@ -35,12 +35,9 @@ int main() {
   long long startTimeMillis = currentTimeInMillis();
 
   Map *map = NewMap(NULL);
-  MapPut(map, (void *)(intptr_t)1000, (void *)(intptr_t)999);
-  void *value = MapGet(map, (void *)(intptr_t)1000);
-  if (value != NULL) {
-    printf("Value for key 1000: %ld\n", (intptr_t)value);
-  } else {
-    printf("Key 1000 not found\n");
+  for (int i = 0; i < 1024; i++) {
+    MapPut(map, (void *)(intptr_t)i, (void *)(intptr_t)i - 1);
+    printf("Key: %d, Value: %d\n", i, MapGet(map, (void *)(intptr_t)i - 1));
   }
 
   FreeMapMemory(map);
