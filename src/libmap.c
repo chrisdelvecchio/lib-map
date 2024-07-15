@@ -6,7 +6,6 @@ Map *NewMap(Map *optional) {
   if (map == NULL) {
     printf("MAP INIT Exception -> Failed to allocate memory!\n");
     free(map);
-    exit(EXIT_FAILURE);
   }
 
   map->capacity = 10;
@@ -62,7 +61,6 @@ void MapPut(Map *map, void *key, void *value) {
       }
 
       FreeMapMemory(map);
-      exit(EXIT_FAILURE);
     }
   }
 
@@ -77,7 +75,6 @@ void MapPut(Map *map, void *key, void *value) {
 void *MapGet(Map *map, void *key) {
   if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot use #MapGet() on an Empty Map!\n");
-    exit(EXIT_FAILURE);
     return NULL;
   }
 
@@ -93,7 +90,6 @@ void *MapGet(Map *map, void *key) {
 void *MapDelete(Map *map, void *key) {
     if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot perform #MapDelete() on an Empty Map!\n");
-    exit(EXIT_FAILURE);
     return NULL;
   }
 
@@ -124,7 +120,6 @@ void MapClear(Map *map) {
 void *MapKeys(Map *map) {
   if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot fetch #MapKeys() of an Empty Map!\n");
-    exit(EXIT_FAILURE);
     return NULL;
   }
   return map->keys->entries;
@@ -133,7 +128,6 @@ void *MapKeys(Map *map) {
 void *MapValues(Map *map) {
   if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot fetch #MapValues() of an Empty Map!\n");
-    exit(EXIT_FAILURE);
     return NULL;
   }
 
