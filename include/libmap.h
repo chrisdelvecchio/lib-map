@@ -28,7 +28,7 @@ void *MapKeys(Map *map);
 void *MapValues(Map *map);
 void MapClear(Map *map);
 size_t MapSize(Map *map);
-bool isEmpty(Map *map);
+bool isMapEmpty(Map *map);
 void MapCopy(Map *source, Map *dest);
 
 #endif  //__LIBMAP__

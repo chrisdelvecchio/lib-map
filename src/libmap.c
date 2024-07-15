@@ -75,7 +75,7 @@ void MapPut(Map *map, void *key, void *value) {
 }
 
 void *MapGet(Map *map, void *key) {
-  if (isEmpty(map)) {
+  if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot use #MapGet() on an Empty Map!\n");
     exit(EXIT_FAILURE);
     return NULL;
@@ -91,7 +91,7 @@ void *MapGet(Map *map, void *key) {
 }
 
 void *MapDelete(Map *map, void *key) {
-    if (isEmpty(map)) {
+    if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot perform #MapDelete() on an Empty Map!\n");
     exit(EXIT_FAILURE);
     return NULL;
@@ -122,7 +122,7 @@ void MapClear(Map *map) {
 }
 
 void *MapKeys(Map *map) {
-  if (isEmpty(map)) {
+  if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot fetch #MapKeys() of an Empty Map!\n");
     exit(EXIT_FAILURE);
     return NULL;
@@ -131,7 +131,7 @@ void *MapKeys(Map *map) {
 }
 
 void *MapValues(Map *map) {
-  if (isEmpty(map)) {
+  if (isMapEmpty(map)) {
     fprintf(stderr, "Cannot fetch #MapValues() of an Empty Map!\n");
     exit(EXIT_FAILURE);
     return NULL;
@@ -142,7 +142,7 @@ void *MapValues(Map *map) {
 
 size_t MapSize(Map *map) { return map->entrySize; }
 
-bool isEmpty(Map *map) {
+bool isMapEmpty(Map *map) {
   if (MapSize(map) == 0) return true;
   return false;
 }
