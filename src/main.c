@@ -35,11 +35,41 @@ int main() {
   long long startTimeMillis = currentTimeInMillis();
 
   Map *map = NewMap(NULL);
-  for (int i = 0; i < 1024; i++) {
-    MapPut(map, (void *)(intptr_t)i, (void *)(intptr_t)i - 1);
-    printf("Key: %d, Value: %d\n", i, MapGet(map, (void *)(intptr_t)i - 1));
+  for (int i = 0; i < 2048; i++) {
+    // Using intptr_t to avoid integer overflow when casting to void *
+    // This is a common workaround for C's lack of support for arbitrary-size
+    // integers
+
+    // Insert key-value pair into the map
+    // Note: The key and value are stored as void * pointers,
+    // but they are actually integers (the cast is needed to avoid integer
+    // overflow)
+
+    // In a real-world scenario, you would want to use more complex data types
+    // or allocate memory dynamically for the keys and values.
+    // For this example, we're using integers as keys and values.
+    MapPut(map, (void *)(intptr_t)i, (void *)(intptr_t)i + 1);
+
+    printf("Key: %d, Value: %d\n", i, MapGet(map, (void *)(intptr_t)i));
   }
 
+  printf("Size of map: %d\n", MapSize(map));
+  printf("Size of map in Bytes: %zu\n", sizeof(map->entrySize));
+
+  // ----------------------------------------------------------------
+  // Function MapGet returns a pointer to the value at the given key passed in
+  // the MapDelete function call below.
+  void *data = MapDelete(map, (void *)(intptr_t)69);
+  if (data) {
+    printf("Deleted Key: 69, Value: %d\n", data);
+  }
+
+  // Note: The number of elements decreases since we performed a MapDelete()
+  // call
+  printf("Size of map after: %d\n", MapSize(map));
+
+  // ----------------------------------------------------------------
+  // Remember to free the map after you are done with it!
   FreeMapMemory(map);
 
   long long endTimeMillis = currentTimeInMillis();

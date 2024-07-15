@@ -9,10 +9,13 @@ Map *NewMap(Map *optional) {
     exit(EXIT_FAILURE);
   }
 
+  map->capacity = 10;
+  size_t capacity = map->capacity;
+
   map->keys = (Entries *)malloc(sizeof(Entries));
   map->values = (Entries *)malloc(sizeof(Entries));
-  map->keys->entries = (void **)malloc(INIT_CAP * sizeof(void *));
-  map->values->entries = (void **)malloc(INIT_CAP * sizeof(void *));
+  map->keys->entries = (void **)malloc(capacity * sizeof(void *));
+  map->values->entries = (void **)malloc(capacity * sizeof(void *));
 
   map->keys->size = 0;
   map->values->size = 0;
@@ -38,9 +41,29 @@ void FreeMapMemory(Map *map) {
 }
 
 void MapPut(Map *map, void *key, void *value) {
-  if (map->keys->size >= INIT_CAP + 1) {
-    printf("MAP PUT Exception -> Reached capacity!\n");
-    return;
+  if (map->keys->size >= map->capacity) {
+    map->capacity *= 2;
+    map->keys->entries =
+        realloc(map->keys->entries, map->capacity * sizeof(void *));
+    map->values->entries =
+        realloc(map->values->entries, map->capacity * sizeof(void *));
+
+    if (map->keys->entries == NULL || map->values->entries == NULL) {
+      if (map->values->entries == NULL) {
+        fprintf(stderr,
+                "Failed to allocate memory for Map's (VALUES) -> Entries. "
+                "ERROR ALLOCATING "
+                "MEMORY\n");
+      } else {
+        fprintf(stderr,
+                "Failed to allocate memory for Map's (KEYS) -> Entries. ERROR "
+                "ALLOCATING "
+                "MEMORY\n");
+      }
+
+      FreeMapMemory(map);
+      exit(EXIT_FAILURE);
+    }
   }
 
   map->keys->entries[map->keys->size] = key;
@@ -52,6 +75,12 @@ void MapPut(Map *map, void *key, void *value) {
 }
 
 void *MapGet(Map *map, void *key) {
+  if (isEmpty(map)) {
+    fprintf(stderr, "Cannot use #MapGet() on an Empty Map!\n");
+    exit(EXIT_FAILURE);
+    return NULL;
+  }
+
   for (size_t i = 0; i < map->keys->size; i++) {
     if (map->keys->entries[i] == key) {
       return map->values->entries[i];
@@ -61,7 +90,15 @@ void *MapGet(Map *map, void *key) {
   return NULL;
 }
 
-void MapDelete(Map *map, void *key) {
+void *MapDelete(Map *map, void *key) {
+    if (isEmpty(map)) {
+    fprintf(stderr, "Cannot perform #MapDelete() on an Empty Map!\n");
+    exit(EXIT_FAILURE);
+    return NULL;
+  }
+
+  void *ret = MapGet(map, key);
+
   for (size_t i = 0; i < map->keys->size; i++) {
     if (map->keys->entries[i] == key) {
       for (size_t j = i; j < map->keys->size - 1; j++) {
@@ -72,7 +109,8 @@ void MapDelete(Map *map, void *key) {
       map->keys->size--;
       map->values->size--;
       map->entrySize--;
-      break;
+
+      return ret;
     }
   }
 }
@@ -84,16 +122,30 @@ void MapClear(Map *map) {
 }
 
 void *MapKeys(Map *map) {
-  if (MapSize(map) == 0) return NULL;
+  if (isEmpty(map)) {
+    fprintf(stderr, "Cannot fetch #MapKeys() of an Empty Map!\n");
+    exit(EXIT_FAILURE);
+    return NULL;
+  }
   return map->keys->entries;
 }
 
 void *MapValues(Map *map) {
-  if (MapSize(map) == 0) return NULL;
+  if (isEmpty(map)) {
+    fprintf(stderr, "Cannot fetch #MapValues() of an Empty Map!\n");
+    exit(EXIT_FAILURE);
+    return NULL;
+  }
+
   return map->values->entries;
 }
 
 size_t MapSize(Map *map) { return map->entrySize; }
+
+bool isEmpty(Map *map) {
+  if (MapSize(map) == 0) return true;
+  return false;
+}
 
 void MapCopy(Map *source, Map *dest) {
   dest->entrySize = source->entrySize;
